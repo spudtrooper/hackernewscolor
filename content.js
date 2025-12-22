@@ -10,15 +10,9 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
     DEBUG = changes.debugMode.newValue;
     log('Debug mode changed to:', DEBUG);
   }
-  if (changes.sortBy) {
-    SORT_BY = changes.sortBy.newValue;
-    log('Sort by changed to:', SORT_BY);
-    sortAndColorizeHN();
-  }
-  if (changes.sortOrder) {
-    SORT_ORDER = changes.sortOrder.newValue;
-    log('Sort order changed to:', SORT_ORDER);
-    sortAndColorizeHN();
+  if (changes.sortBy || changes.sortOrder) {
+    log('Sort settings changed, reloading page');
+    window.location.reload();
   }
 });
 
