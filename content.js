@@ -1,12 +1,24 @@
 // Debugging configuration
 let DEBUG = false;
 let isProcessing = false;
+let SORT_BY = 'points'; // points, comments, or time
+let SORT_ORDER = 'desc'; // desc or asc
 
-// Listen for debug setting changes
+// Listen for setting changes
 chrome.storage.onChanged.addListener((changes, namespace) => {
   if (changes.debugMode) {
     DEBUG = changes.debugMode.newValue;
     log('Debug mode changed to:', DEBUG);
+  }
+  if (changes.sortBy) {
+    SORT_BY = changes.sortBy.newValue;
+    log('Sort by changed to:', SORT_BY);
+    sortAndColorizeHN();
+  }
+  if (changes.sortOrder) {
+    SORT_ORDER = changes.sortOrder.newValue;
+    log('Sort order changed to:', SORT_ORDER);
+    sortAndColorizeHN();
   }
 });
 
@@ -54,6 +66,45 @@ function sortAndColorizeHN() {
       }
     }
     
+    // Extract comments count - format is "X comments" or "discuss"
+    let comments = 0;
+    const commentsLink = subtextRow?.querySelectorAll('a');
+    if (commentsLink) {
+      for (const link of commentsLink) {
+        const text = link.textContent.trim();
+        if (text.includes('comment')) {
+          const match = text.match(/(\d+)/);
+          if (match) {
+            comments = parseInt(match[1]);
+          }
+          break;
+        } else if (text === 'discuss') {
+          comments = 0;
+          break;
+        }
+      }
+    }
+    
+    // Extract time - get the age element
+    const ageElement = subtextRow?.querySelector('.age');
+    let timeValue = 0;
+    if (ageElement) {
+      const ageText = ageElement.textContent.trim();
+      // Parse relative time into minutes for sorting
+      // Format: "X minutes ago", "X hours ago", "X days ago"
+      const minutesMatch = ageText.match(/(\d+)\s*minute/);
+      const hoursMatch = ageText.match(/(\d+)\s*hour/);
+      const daysMatch = ageText.match(/(\d+)\s*day/);
+      
+      if (minutesMatch) {
+        timeValue = parseInt(minutesMatch[1]);
+      } else if (hoursMatch) {
+        timeValue = parseInt(hoursMatch[1]) * 60;
+      } else if (daysMatch) {
+        timeValue = parseInt(daysMatch[1]) * 60 * 24;
+      }
+    }
+    
     // The spacer row follows the subtext
     const spacerRow = subtextRow?.nextElementSibling;
     
@@ -62,16 +113,56 @@ function sortAndColorizeHN() {
       subtextRow,
       spacerRow,
       points,
+      comments,
+      timeValue,
       scoreElement
     };
   });
 
-  // Sort by points (descending)
-  articleData.sort((a, b) => b.points - a.points);
-  log('Articles sorted. Point range:',
-    Math.min(...articleData.map(item => item.points)),
+  // Sort by selected criteria and order
+  articleData.sort((a, b) => {
+    let aValue, bValue;
+    
+    switch (SORT_BY) {
+      case 'comments':
+        aValue = a.comments;
+        bValue = b.comments;
+        break;
+      case 'time':
+        aValue = a.timeValue;
+        bValue = b.timeValue;
+        break;
+      case 'points':
+      default:
+        aValue = a.points;
+        bValue = b.points;
+        break;
+    }
+    
+    // Apply sort order
+    if (SORT_ORDER === 'asc') {
+      return aValue - bValue;
+    } else {
+      return bValue - aValue;
+    }
+  });
+  
+  log(`Articles sorted by ${SORT_BY} (${SORT_ORDER}). Range:`,
+    Math.min(...articleData.map(item => {
+      switch (SORT_BY) {
+        case 'comments': return item.comments;
+        case 'time': return item.timeValue;
+        default: return item.points;
+      }
+    })),
     'to',
-    Math.max(...articleData.map(item => item.points))
+    Math.max(...articleData.map(item => {
+      switch (SORT_BY) {
+        case 'comments': return item.comments;
+        case 'time': return item.timeValue;
+        default: return item.points;
+      }
+    }))
   );
 
   // Find max points for color scaling
@@ -148,10 +239,12 @@ const run = () => {
 }
 
 
-// Load debug setting from storage
-chrome.storage.sync.get(['debugMode'], (result) => {
+// Load settings from storage
+chrome.storage.sync.get(['debugMode', 'sortBy', 'sortOrder'], (result) => {
   DEBUG = result.debugMode || false;
-  log('Debug mode loaded:', DEBUG);
+  SORT_BY = result.sortBy || 'points';
+  SORT_ORDER = result.sortOrder || 'desc';
+  log('Settings loaded - Debug:', DEBUG, 'Sort by:', SORT_BY, 'Sort order:', SORT_ORDER);
 
   run();
 });

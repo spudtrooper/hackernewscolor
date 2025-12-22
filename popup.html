@@ -24,6 +24,18 @@
       cursor: pointer;
       user-select: none;
     }
+    select {
+      padding: 4px 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background-color: white;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    select:focus {
+      outline: none;
+      border-color: #ff6600;
+    }
     .switch {
       position: relative;
       display: inline-block;
@@ -74,6 +86,23 @@
 </head>
 <body>
   <h3>HN Sorter & Colorizer</h3>
+  
+  <div class="setting">
+    <label for="sortBy">Sort By</label>
+    <select id="sortBy">
+      <option value="points" selected>Points</option>
+      <option value="comments">Comments</option>
+      <option value="time">Time</option>
+    </select>
+  </div>
+  
+  <div class="setting">
+    <label for="sortOrder">Sort Order</label>
+    <select id="sortOrder">
+      <option value="desc" selected>Descending</option>
+      <option value="asc">Ascending</option>
+    </select>
+  </div>
   
   <div class="setting">
     <label for="debugToggle">Debug Mode</label>
