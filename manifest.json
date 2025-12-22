@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "HN Points Sorter & Colorizer",
+  "version": "1.0",
+  "description": "Sort Hacker News articles by points and colorize them based on score",
+  "content_scripts": [
+    {
+      "matches": ["https://news.ycombinator.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "permissions": []
+}
