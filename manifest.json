@@ -10,5 +10,9 @@
       "run_at": "document_end"
     }
   ],
-  "permissions": []
+  "permissions": ["storage"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "HN Points Sorter & Colorizer"
+  }
 }
