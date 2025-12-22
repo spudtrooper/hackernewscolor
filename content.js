@@ -27,9 +27,9 @@ function sortAndColorizeHN() {
   isProcessing = true;
   log('Starting sort and colorize');
 
-  const itemlist = document.querySelector('.itemlist');
-  if (!itemlist) {
-    log('No itemlist found');
+  const bigbox = document.querySelector('#bigbox');
+  if (!bigbox) {
+    log('No bigbox found');
     isProcessing = false;
     return;
   }
@@ -81,12 +81,12 @@ function sortAndColorizeHN() {
   // Reorder in DOM and apply colorization
   articleData.forEach((item, index) => {
     // Append back in sorted order
-    itemlist.appendChild(item.article);
+    bigbox.appendChild(item.article);
     if (item.subtextRow) {
-      itemlist.appendChild(item.subtextRow);
+      bigbox.appendChild(item.subtextRow);
     }
     if (item.spacerRow) {
-      itemlist.appendChild(item.spacerRow);
+      bigbox.appendChild(item.spacerRow);
     }
 
     // Colorize the score element
@@ -110,6 +110,15 @@ function sortAndColorizeHN() {
       }
     }
   });
+
+  // Move the first element, which is a td to the end and wrap
+  // in a tr
+  const firstTd = bigbox.querySelector('td');
+  if (firstTd) {
+    const newTr = document.createElement('tr');
+    newTr.appendChild(firstTd);
+    bigbox.appendChild(newTr);
+  }
 
   log('Sort and colorize complete');
   isProcessing = false;

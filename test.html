@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Test HN Sorter</title>
+</head>
+<body>
+    <h1>Test Page - Open Console (F12) to see debug output</h1>
+    <button onclick="sortAndColorizeHN()">Sort Now</button>
+    <button onclick="DEBUG = !DEBUG; console.log('Debug mode:', DEBUG)">Toggle Debug</button>
+    
+    <!-- Simplified HN structure from the example -->
+    <table class="bigbox">
+        <tr class="athing" id="46352930">
+            <td>Article 1: If You Don't Design Your Career</td>
+        </tr>
+        <tr>
+            <td class="subtext">
+                <span class="score" id="score_46352930">89 points</span>
+            </td>
+        </tr>
+        <tr class="spacer" style="height:5px"></tr>
+        
+        <tr class="athing" id="46348329">
+            <td>Article 3: A guide to local coding models</td>
+        </tr>
+        <tr>
+            <td class="subtext">
+                <span class="score" id="score_46348329">454 points</span>
+            </td>
+        </tr>
+        <tr class="spacer" style="height:5px"></tr>
+        
+        <tr class="athing" id="46352565">
+            <td>Article 2: The ancient monuments</td>
+        </tr>
+        <tr>
+            <td class="subtext">
+                <span class="score" id="score_46352565">50 points</span>
+            </td>
+        </tr>
+        <tr class="spacer" style="height:5px"></tr>
+        
+        <tr class="athing" id="46345897">
+            <td>Article 4: Books mentioned on HN</td>
+        </tr>
+        <tr>
+            <td class="subtext">
+                <span class="score" id="score_46345897">480 points</span>
+            </td>
+        </tr>
+        <tr class="spacer" style="height:5px"></tr>
+        
+        <tr class="athing" id="46352747">
+            <td>Article 5: Well Being in Times of Algorithms</td>
+        </tr>
+        <tr>
+            <td class="subtext">
+                <span class="score" id="score_46352747">18 points</span>
+            </td>
+        </tr>
+        <tr class="spacer" style="height:5px"></tr>
+    </table>
+
+    <script>
+        // Copy the content.js logic here for testing
+        let DEBUG = true;
+        let isProcessing = false;
+
+        function log(...args) {
+            if (DEBUG) {
+                console.log('[HN Sorter]', ...args);
+            }
+        }
+
+        function sortAndColorizeHN() {
+            if (isProcessing) {
+                log('Already processing, skipping');
+                return;
+            }
+            
+            isProcessing = true;
+            log('Starting sort and colorize');
+            
+            const itemlist = document.querySelector('.itemlist');
+            if (!itemlist) {
+                log('No itemlist found');
+                isProcessing = false;
+                return;
+            }
+
+            const articles = Array.from(document.querySelectorAll('tr.athing'));
+            log(`Found ${articles.length} articles`);
+            
+            const articleData = articles.map(article => {
+                const subtextRow = article.nextElementSibling;
+                const scoreElement = subtextRow?.querySelector('.score');
+                
+                let points = 0;
+                if (scoreElement) {
+                    const scoreText = scoreElement.textContent.trim();
+                    const match = scoreText.match(/(\d+)\s*points?/);
+                    if (match) {
+                        points = parseInt(match[1]);
+                    }
+                }
+                
+                const spacerRow = subtextRow?.nextElementSibling;
+                
+                log(`Article ${article.id}: ${points} points, has subtext: ${!!subtextRow}, has spacer: ${!!spacerRow}`);
+                
+                return {
+                    article,
+                    subtextRow,
+                    spacerRow,
+                    points,
+                    scoreElement
+                };
+            });
+
+            log('Articles sorted. Point range:', 
+                Math.min(...articleData.map(item => item.points)),
+                'to',
+                Math.max(...articleData.map(item => item.points))
+            );
+
+            articleData.sort((a, b) => b.points - a.points);
+
+            const maxPoints = Math.max(...articleData.map(item => item.points), 1);
+            log('Max points:', maxPoints);
+
+            articleData.forEach((item, index) => {
+                itemlist.appendChild(item.article);
+                if (item.subtextRow) {
+                    itemlist.appendChild(item.subtextRow);
+                }
+                if (item.spacerRow) {
+                    itemlist.appendChild(item.spacerRow);
+                }
+
+                if (item.scoreElement && item.points > 0) {
+                    const ratio = item.points / maxPoints;
+                    
+                    const red = Math.floor(128 + (127 * ratio));
+                    const green = Math.floor(128 * (1 - ratio));
+                    const blue = Math.floor(128 * (1 - ratio));
+                    
+                    const fontWeight = Math.floor(400 + (500 * ratio));
+                    
+                    item.scoreElement.style.color = `rgb(${red}, ${green}, ${blue})`;
+                    item.scoreElement.style.fontWeight = fontWeight;
+                    item.scoreElement.style.transition = 'all 0.3s ease';
+                    
+                    if (index < 3) {
+                        log(`Article #${index + 1}: ${item.points} points, ratio: ${ratio.toFixed(2)}, color: rgb(${red}, ${green}, ${blue}), weight: ${fontWeight}`);
+                    }
+                }
+            });
+            
+            log('Sort and colorize complete');
+            isProcessing = false;
+        }
+
+        // Auto-run on load
+        window.addEventListener('load', sortAndColorizeHN);
+    </script>
+</body>
+</html>
