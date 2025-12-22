@@ -34,20 +34,33 @@ function sortAndColorizeHN() {
     return;
   }
 
-  // Get all article rows (athing elements)
-  const articles = Array.from(document.querySelectorAll('.athing'));
+  // Get all article rows (athing elements with class 'submission')
+  const articles = Array.from(document.querySelectorAll('tr.athing'));
   log(`Found ${articles.length} articles`);
-
+  
   // Create array of article data with their associated subtext rows
   const articleData = articles.map(article => {
+    // The next row contains the subtext with score
     const subtextRow = article.nextElementSibling;
     const scoreElement = subtextRow?.querySelector('.score');
-    const points = scoreElement ? parseInt(scoreElement.textContent) : 0;
-
+    
+    // Extract points - format is "X points" or might not exist
+    let points = 0;
+    if (scoreElement) {
+      const scoreText = scoreElement.textContent.trim();
+      const match = scoreText.match(/(\d+)\s*points?/);
+      if (match) {
+        points = parseInt(match[1]);
+      }
+    }
+    
+    // The spacer row follows the subtext
+    const spacerRow = subtextRow?.nextElementSibling;
+    
     return {
       article,
       subtextRow,
-      spacerRow: subtextRow?.nextElementSibling, // The spacer <tr> after subtext
+      spacerRow,
       points,
       scoreElement
     };
