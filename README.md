@@ -36,3 +36,13 @@ The extension uses a content script that:
 - Sorts them by points (descending)
 - Reorders the DOM elements
 - Applies color and font-weight styling based on point ratio to maximum points
+
+## Versions
+
+### 1.0
+
+- First release
+
+### 1.1.1
+
+- Progess bars
