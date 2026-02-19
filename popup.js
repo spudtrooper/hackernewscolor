@@ -1,5 +1,5 @@
 // Load current settings
-chrome.storage.sync.get(['debugMode', 'sortBy', 'sortOrder', 'showProgressBar'], (result) => {
+chrome.storage.sync.get(['debugMode', 'sortBy', 'sortOrder', 'showProgressBar', 'loadMorePages'], (result) => {
   const debugToggle = document.getElementById('debugToggle');
   debugToggle.checked = result.debugMode || false;
   
@@ -11,6 +11,11 @@ chrome.storage.sync.get(['debugMode', 'sortBy', 'sortOrder', 'showProgressBar'],
   
   const showProgressBar = document.getElementById('showProgressBar');
   showProgressBar.checked = result.showProgressBar || false;
+  
+  const loadMorePages = document.getElementById('loadMorePages');
+  const loadMorePagesValue = document.getElementById('loadMorePagesValue');
+  loadMorePages.value = result.loadMorePages || 0;
+  loadMorePagesValue.textContent = result.loadMorePages || 0;
 });
 
 // Save debug mode setting when toggled
@@ -42,5 +47,14 @@ document.getElementById('showProgressBar').addEventListener('change', (event) =>
   const showProgressBar = event.target.checked;
   chrome.storage.sync.set({ showProgressBar }, () => {
     console.log('Show progress bar set to:', showProgressBar);
+  });
+});
+
+// Update display and save load more pages setting when slider moves
+document.getElementById('loadMorePages').addEventListener('input', (event) => {
+  const loadMorePages = parseInt(event.target.value) || 0;
+  document.getElementById('loadMorePagesValue').textContent = loadMorePages;
+  chrome.storage.sync.set({ loadMorePages }, () => {
+    console.log('Load more pages set to:', loadMorePages);
   });
 });

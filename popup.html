@@ -36,6 +36,35 @@
       outline: none;
       border-color: #ff6600;
     }
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    input[type="range"] {
+      width: 80px;
+      height: 4px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: #ddd;
+      border-radius: 2px;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      background: #ff6600;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    .slider-value {
+      min-width: 20px;
+      text-align: center;
+      font-size: 13px;
+      color: #333;
+    }
     .switch {
       position: relative;
       display: inline-block;
@@ -110,6 +139,14 @@
       <input type="checkbox" id="showProgressBar">
       <span class="slider"></span>
     </label>
+  </div>
+  
+  <div class="setting">
+    <label for="loadMorePages">Load More Pages</label>
+    <div class="slider-container">
+      <input type="range" id="loadMorePages" min="0" max="10" value="0">
+      <span class="slider-value" id="loadMorePagesValue">0</span>
+    </div>
   </div>
   
   <div class="setting">

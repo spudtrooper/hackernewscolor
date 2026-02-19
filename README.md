@@ -46,3 +46,7 @@ The extension uses a content script that:
 ### 1.1.1
 
 - Progess bars
+
+### 1.1.2
+
+- Load more pages
