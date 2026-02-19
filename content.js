@@ -3,6 +3,7 @@ let DEBUG = false;
 let isProcessing = false;
 let SORT_BY = 'points'; // points, comments, or time
 let SORT_ORDER = 'desc'; // desc or asc
+let SHOW_PROGRESS_BAR = false;
 
 // Listen for setting changes
 chrome.storage.onChanged.addListener((changes, namespace) => {
@@ -10,7 +11,7 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
     DEBUG = changes.debugMode.newValue;
     log('Debug mode changed to:', DEBUG);
   }
-  if (changes.sortBy || changes.sortOrder) {
+  if (changes.sortBy || changes.sortOrder || changes.showProgressBar) {
     log('Sort settings changed, reloading page');
     window.location.reload();
   }
@@ -190,6 +191,43 @@ function sortAndColorizeHN() {
       item.scoreElement.style.fontWeight = fontWeight;
       item.scoreElement.style.transition = 'all 0.3s ease';
 
+      // Add progress bar before the score if enabled
+      if (SHOW_PROGRESS_BAR) {
+        // Remove existing progress bar if any
+        const existingBar = item.scoreElement.parentElement.querySelector('.hn-progress-bar');
+        if (existingBar) {
+          existingBar.remove();
+        }
+        
+        // Create progress bar container
+        const progressBar = document.createElement('span');
+        progressBar.className = 'hn-progress-bar';
+        progressBar.style.cssText = `
+          display: inline-block;
+          width: 50px;
+          height: 8px;
+          background-color: #e0e0e0;
+          border-radius: 4px;
+          margin-right: 6px;
+          vertical-align: middle;
+          overflow: hidden;
+        `;
+        
+        // Create the filled portion
+        const progressFill = document.createElement('span');
+        progressFill.style.cssText = `
+          display: block;
+          width: ${ratio * 100}%;
+          height: 100%;
+          background-color: rgb(${red}, ${green}, ${blue});
+          border-radius: 4px;
+          transition: width 0.3s ease;
+        `;
+        
+        progressBar.appendChild(progressFill);
+        item.scoreElement.parentElement.insertBefore(progressBar, item.scoreElement);
+      }
+
       if (index < 3) { // Log first 3 for debugging
         log(`Article #${index + 1}: ${item.points} points, ratio: ${ratio.toFixed(2)}, color: rgb(${red}, ${green}, ${blue}), weight: ${fontWeight}`);
       }
@@ -234,11 +272,12 @@ const run = () => {
 
 
 // Load settings from storage
-chrome.storage.sync.get(['debugMode', 'sortBy', 'sortOrder'], (result) => {
+chrome.storage.sync.get(['debugMode', 'sortBy', 'sortOrder', 'showProgressBar'], (result) => {
   DEBUG = result.debugMode || false;
   SORT_BY = result.sortBy || 'points';
   SORT_ORDER = result.sortOrder || 'desc';
-  log('Settings loaded - Debug:', DEBUG, 'Sort by:', SORT_BY, 'Sort order:', SORT_ORDER);
+  SHOW_PROGRESS_BAR = result.showProgressBar || false;
+  log('Settings loaded - Debug:', DEBUG, 'Sort by:', SORT_BY, 'Sort order:', SORT_ORDER, 'Progress bar:', SHOW_PROGRESS_BAR);
 
   run();
 });
