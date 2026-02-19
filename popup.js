@@ -58,3 +58,26 @@ document.getElementById('loadMorePages').addEventListener('input', (event) => {
     console.log('Load more pages set to:', loadMorePages);
   });
 });
+
+// Reset all settings to defaults
+document.getElementById('resetDefaults').addEventListener('click', () => {
+  const defaults = {
+    debugMode: false,
+    sortBy: 'points',
+    sortOrder: 'desc',
+    showProgressBar: false,
+    loadMorePages: 0
+  };
+  
+  chrome.storage.sync.set(defaults, () => {
+    // Update UI to reflect defaults
+    document.getElementById('debugToggle').checked = defaults.debugMode;
+    document.getElementById('sortBy').value = defaults.sortBy;
+    document.getElementById('sortOrder').value = defaults.sortOrder;
+    document.getElementById('showProgressBar').checked = defaults.showProgressBar;
+    document.getElementById('loadMorePages').value = defaults.loadMorePages;
+    document.getElementById('loadMorePagesValue').textContent = defaults.loadMorePages;
+    
+    console.log('Settings reset to defaults');
+  });
+});

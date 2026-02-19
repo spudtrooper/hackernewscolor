@@ -111,6 +111,23 @@
       font-size: 12px;
       color: #666;
     }
+    .reset-btn {
+      width: 100%;
+      padding: 8px 12px;
+      margin-top: 15px;
+      background-color: #f5f5f5;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #666;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .reset-btn:hover {
+      background-color: #eee;
+      border-color: #ccc;
+      color: #333;
+    }
   </style>
 </head>
 <body>
@@ -160,6 +177,8 @@
   <div class="info">
     Enable debug mode to see console logs about sorting and colorization.
   </div>
+  
+  <button id="resetDefaults" class="reset-btn">Reset to Default</button>
   
   <script src="popup.js"></script>
 </body>
