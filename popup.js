@@ -59,6 +59,18 @@ document.getElementById('loadMorePages').addEventListener('input', (event) => {
   });
 });
 
+// Quick-load buttons: one-time page load without changing the setting
+document.querySelectorAll('.quick-load-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const pages = parseInt(btn.dataset.pages);
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0]) {
+        chrome.tabs.sendMessage(tabs[0].id, { action: 'quickLoad', pages });
+      }
+    });
+  });
+});
+
 // Reset all settings to defaults
 document.getElementById('resetDefaults').addEventListener('click', () => {
   const defaults = {

@@ -54,3 +54,7 @@ The extension uses a content script that:
 ### 1.1.3
 
 - Reset options button
+
+### 1.1.4
+
+- More pages buttons

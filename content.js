@@ -436,6 +436,20 @@ const run = () => {
 }
 
 
+// Listen for one-time quick-load messages from popup
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'quickLoad' && message.pages > 0) {
+    log(`Quick-load requested for ${message.pages} extra pages`);
+    const state = {
+      targetPages: message.pages + 1,
+      currentPage: 1
+    };
+    localStorage.setItem(LS_KEY_STATE, JSON.stringify(state));
+    localStorage.setItem(LS_KEY_ARTICLES, JSON.stringify([]));
+    window.location.reload();
+  }
+});
+
 // Load settings from storage
 chrome.storage.sync.get(['debugMode', 'sortBy', 'sortOrder', 'showProgressBar', 'loadMorePages'], (result) => {
   DEBUG = result.debugMode || false;
